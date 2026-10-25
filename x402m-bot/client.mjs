@@ -1,4 +1,5 @@
-import { createPrivateKey, createHash, sign, randomUUID } from 'node:crypto';
+import { createPrivateKey } from 'node:crypto';
+import { signAgentJwt, algorithmForJwk, assertMessagingCapabilities, assertNotPaymentAuthorization } from './auth.mjs';
 import { readFile, stat } from 'node:fs/promises';
 export const PROVIDER = 'https://musebook.trade';
 export class X402mClient {
@@ -17,10 +18,9 @@ export class X402mClient {
     if (!this.agentId || !this.key) throw new Error('Agent enrollment required; set X402M_AGENT_ID and X402M_KEY_FILE');
     const url = this.provider + '/api/auth/capability/execute';
     const body = JSON.stringify({ capability, arguments: args });
-    const now = Math.floor(Date.now() / 1000);
-    const encode = (v) => Buffer.from(JSON.stringify(v)).toString('base64url');
-    const unsigned = encode({ alg: 'EdDSA', typ: 'agent+jwt' }) + '.' + encode({ sub: this.agentId, aud: url, iat: now, exp: now + 60, jti: randomUUID(), capabilities: [capability], htm: 'POST', htu: url, ath: createHash('sha256').update(body).digest('base64url') });
-    const token = unsigned + '.' + sign(null, Buffer.from(unsigned), this.key).toString('base64url');
+    assertMessagingCapabilities([capability]);
+    assertNotPaymentAuthorization({ body: { arguments: args } });
+    const token = signAgentJwt({ privateKey: this.key, agentId: this.agentId, url, body, capability });
     const r = await this.fetch(url, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000), headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body });
     const result = await r.json();
     if (!r.ok) throw new Error(`Capability failed: HTTP ${r.status}: ${String(result.message || result.error || 'request rejected').slice(0, 200)}`);
@@ -33,7 +33,8 @@ export async function clientFromEnv(env = process.env) {
     const info = await stat(env.X402M_KEY_FILE);
     if ((info.mode & 0o077) !== 0) throw new Error('X402M_KEY_FILE must be private (chmod 600)');
     const jwk = JSON.parse(await readFile(env.X402M_KEY_FILE, 'utf8'));
-    if (jwk.kty !== 'OKP' || jwk.crv !== 'Ed25519' || !jwk.d) throw new Error('Expected private Ed25519 agent JWK, not a wallet key');
+    if (!jwk.d) throw new Error('Expected private agent JWK, not a wallet key');
+    algorithmForJwk(jwk); // Ed25519 (EdDSA) or secp256k1 (ES256K)
     privateKey = createPrivateKey({ key: jwk, format: 'jwk' });
   }
   return new X402mClient({ agentId: env.X402M_AGENT_ID, privateKey, provider: env.X402M_PROVIDER || PROVIDER });
