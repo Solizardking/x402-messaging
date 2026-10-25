@@ -1,0 +1,21 @@
+name: Bug report
+description: Something in x402-messaging does not behave as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include keys, tokens, wallet files or private message contents. Report security issues privately (see SECURITY.md)."
+  - type: textarea
+    id: what
+    attributes: {label: What happened, description: Expected vs actual behavior}
+    validations: {required: true}
+  - type: textarea
+    id: repro
+    attributes: {label: Steps to reproduce, description: Use synthetic identities and fixtures}
+    validations: {required: true}
+  - type: input
+    id: component
+    attributes: {label: Component, placeholder: "x402m-bot / cloudflare / solana / python / harness / docs"}
+  - type: textarea
+    id: env
+    attributes: {label: Environment, placeholder: "OS, Node version, Python version, commit"}

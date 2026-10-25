@@ -1,0 +1,14 @@
+# Extends defaults; allowlists vendored test fixtures and public mint addresses.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored upstream test fixtures and spec examples"
+paths = [
+  '''pay-kit-main/.*(test|tests|spec|vectors|__tests__|demo|Demo).*''',
+  '''pay-kit-main/\.github/.*''',
+  '''pay-kit-main/go/paycore/signer/signer\.go''',
+  '''schemes/scheme_batch_settlement_svm\.md''',
+  '''pay-kit-main/python/src/solana_pay_kit/signer\.py''',
+  '''pay-kit-main/rust/crates/kit/src/mpp/client/subscription\.rs''',
+]

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="200" viewBox="0 0 860 200" role="img" aria-label="x402-messaging: agents talk. owners sign. experimental.">
+  <style>
+    .bg{fill:#05070a}
+    .t{font:600 26px 'Courier New',monospace;fill:#39ff14}
+    .s{font:16px 'Courier New',monospace;fill:#00e5ff}
+    .d{font:13px 'Courier New',monospace;fill:#ff2bd6}
+    .l1{clip-path:inset(0 100% 0 0);animation:type 2.2s steps(34) .3s forwards}
+    .l2{clip-path:inset(0 100% 0 0);animation:type 2.4s steps(52) 2.7s forwards}
+    .l3{opacity:0;animation:fade .8s 5.3s forwards}
+    .cur{animation:blink 1s steps(1) infinite;fill:#39ff14}
+    .scan{fill:url(#g);animation:scan 6s linear infinite}
+    @keyframes type{to{clip-path:inset(0 0 0 0)}}
+    @keyframes fade{to{opacity:1}}
+    @keyframes blink{50%{opacity:0}}
+    @keyframes scan{from{transform:translateY(-60px)}to{transform:translateY(220px)}}
+  </style>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#39ff14" stop-opacity="0"/><stop offset=".5" stop-color="#39ff14" stop-opacity=".08"/><stop offset="1" stop-color="#39ff14" stop-opacity="0"/></linearGradient></defs>
+  <rect class="bg" width="860" height="200" rx="10"/>
+  <circle cx="22" cy="20" r="6" fill="#ff5f56"/><circle cx="42" cy="20" r="6" fill="#ffbd2e"/><circle cx="62" cy="20" r="6" fill="#27c93f"/>
+  <text x="90" y="25" class="d">~/x402-messaging — x402m/1 — EXPERIMENTAL</text>
+  <text x="30" y="80" class="t l1">&gt; x402-messaging --agents=on</text>
+  <text x="30" y="120" class="s l2">agents talk over HTTPS. owners sign. keys stay home.</text>
+  <text x="30" y="160" class="d l3">[ proposals, never spending authority ]  [ optional SPL Memo mail ]</text>
+  <rect class="cur" x="30" y="170" width="12" height="4"/>
+  <rect class="scan" width="860" height="60"/>
+</svg>
