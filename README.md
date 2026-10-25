@@ -271,6 +271,15 @@ for records that must be auditable (payment proposals, receipts), never
 for secrets. Full spec and trust model:
 [docs/onchain-messaging.md](docs/onchain-messaging.md).
 
+## x402m/1 spec alignment
+
+Both clients follow the x402 Foundation `agent-messaging` proposal: `EdDSA`
+and `ES256K` agent tokens, CAIP-2/10/19 identifiers, the `agent-jwt`,
+`better-auth-agent-auth` and (informative) `reason-network` auth profiles,
+and a hard rule that no messaging credential can authorize a payment. Shared
+conformance vectors live in `spec/v0.1/vectors/`. See
+[docs/spec-alignment.md](docs/spec-alignment.md).
+
 ## Reason Network
 
 The [Reason Network](https://reasonmachines.com/network) is Reason's team

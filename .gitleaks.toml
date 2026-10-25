@@ -9,6 +9,11 @@ paths = [
   '''pay-kit-main/\.github/.*''',
   '''pay-kit-main/go/paycore/signer/signer\.go''',
   '''schemes/scheme_batch_settlement_svm\.md''',
+  # x402m/1 conformance vectors: expired agent+jwt tokens signed by discarded
+  # ephemeral keys, public JWKs, and public CAIP example ids (no secrets).
+  '''spec/v0\.1/vectors/x402m-conformance\.json''',
+  '''scripts/gen-x402m-vectors\.mjs''',
+  '''spec/x402-foundation/agent-messaging\.md''',
   '''pay-kit-main/python/src/solana_pay_kit/signer\.py''',
   '''pay-kit-main/rust/crates/kit/src/mpp/client/subscription\.rs''',
 ]
