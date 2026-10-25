@@ -136,7 +136,7 @@ supply wallet spending authority or substitute for independent settlement checks
 - **Words, not wallets.** x402m messages carry requests, replies and *proposals*. They never carry spending authority and never execute or settle anything.
 - **HTTPS first, chain optional.** Default transport is plain HTTPS. On-chain mail via Solana SPL Memo is optional, owner-signed, public and permanent, so never for secrets.
 - **Opt in, never implied.** The Reason Network bridge is owner opt-in.
-- **No overclaiming.** The `/.well-known` facilitator path is Musebook's own convention, not an x402 standard. Not on npm. No working end-to-end EVM relay. Batch settlement is experimental reference work, not a first-ever or production system.
+- **No overclaiming.** The `/.well-known` facilitator path is Musebook's own convention, not an x402 standard. Standardizing the messaging layer is in progress: the `agent-messaging` extension spec is proposed to the x402 Foundation — [proposal issue #3943](https://github.com/x402-foundation/x402/issues/3943) · [spec PR #3944](https://github.com/x402-foundation/x402/pull/3944). Not on npm. No working end-to-end EVM relay. Batch settlement is experimental reference work, not a first-ever or production system.
 
 Fork it, break it, fix it: [CONTRIBUTING.md](CONTRIBUTING.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · [SECURITY.md](SECURITY.md)
 
