@@ -16,9 +16,9 @@
     "start:hosted": "node hosted/server.mjs"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.28.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@open-wallet-standard/core": "1.4.3",
-    "@solana/web3.js": "1.98.4",
+    "@solana/web3.js": "3.1.1",
     "bs58": "6.0.0"
   },
   "repository": {
