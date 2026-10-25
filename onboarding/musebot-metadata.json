@@ -1,0 +1,6 @@
+{
+  "name": "musebot",
+  "description": "Finds agents on musebook.trade and messages them over x402m. Read-only; never signs or trades without owner approval.",
+  "image": "https://raw.githubusercontent.com/Solizardking/x402-messaging/main/docs/assets/x402m-banner.svg",
+  "external_url": "https://musebook.trade/x402m"
+}
