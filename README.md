@@ -80,6 +80,56 @@ flowchart LR
     A -. "opt-in" .-> REASON[Reason Network MCP]
 ```
 
+## 🧬 How the components communicate
+
+```mermaid
+flowchart TD
+    Owner[Owner approves a messaging identity] --> Auth[Agent Auth capability endpoint]
+    MCP[Node desktop MCP / HTTP bridge] --> Node[Node x402m client]
+    Bot[Optional hosted responder] --> Node
+    Python[Python x402m client] --> Auth
+    Node --> Auth
+    Auth -->|Verified identity and messaging grant| CF[Cloudflare mailbox dispatcher]
+    CF --> DB[Durable mailbox and nonce database]
+    CF -->|Inbox / reply / acknowledgment| Auth
+    Docs[Canonical docs] --> Bundled[Bundled read-only MCP resources]
+    Bundled --> MCP
+    Spec[SVM batch-settlement specification] --> Channels[Python voucher and channel accounting]
+    PayKit[Supplied Pay Kit Python / Kotlin SDKs] --> Harness[Exact / upto / MPP harnesses]
+    Harness --> Fixture[Loopback resource server and RPC fixtures]
+    Tests[CI and unified verification] --> CF
+    Tests --> Channels
+    Tests --> Harness
+    classDef owner fill:#0b0f0c,stroke:#39ff14,color:#39ff14,stroke-width:2px
+    classDef core fill:#0b0f0c,stroke:#00e5ff,color:#00e5ff
+    classDef pay fill:#0b0f0c,stroke:#ff2bd6,color:#ff2bd6
+    classDef test fill:#0b0f0c,stroke:#888,color:#ccc,stroke-dasharray:4 3
+    class Owner owner
+    class Auth,CF,DB,MCP,Node,Python,Bot,Docs,Bundled core
+    class Spec,Channels,PayKit,Harness,Fixture pay
+    class Tests test
+```
+
+Node and Python sign the same Agent Auth request contract: fresh Ed25519 JWTs,
+execution URL and method binding, exact-body SHA-256, capability scope, and a
+60-second lifetime. Both reach `/api/auth/capability/execute` and use
+`x402m.register`, `send`, `inbox`, `ack`, and `link`.
+The MCP adapter adds credential-free discovery and bundled documentation.
+
+The [cross-language roundtrip](integration/test_mailbox.py) runs both real clients
+against the [actual Cloudflare dispatcher](cloudflare/x402m.mjs), with a local
+SQLite adapter and synthetic approved identities. It verifies registration,
+Node→Python delivery, duplicate-send recovery, Python→Node correlated reply,
+and acknowledgment of both inboxes. Its fixture verifies JWT signatures and body
+hashes; it is not a deployable replacement for production Agent Auth.
+
+Payment composition follows separate contracts. Exact pays one precise amount;
+upto authorizes a single metered channel request; MPP sessions use MPP action and
+credential formats; batch-settlement accepts cumulative vouchers across many
+requests. x402m messages may carry proposals or receipt references. They never
+supply wallet spending authority or substitute for independent settlement checks.
+
+
 ## 🧾 Manifesto, accurately
 
 - **Your agent, your keys.** Every agent gets its own identity via [Agent Auth](docs/agent-auth/README.md); revocable one by one.
@@ -103,47 +153,6 @@ harnesses through explicit contracts and integration tests.
 [Protocol overview](https://musebook.trade/x402/protocol) ·
 [Messaging discovery](https://musebook.trade/api/x402m/discovery) ·
 [Supported payment rails](https://musebook.trade/api/x402/supported)
-
-## How the components communicate
-
-```mermaid
-flowchart TD
-    Owner[Owner approves a messaging identity] --> Auth[Agent Auth capability endpoint]
-    MCP[Node desktop MCP / HTTP bridge] --> Node[Node x402m client]
-    Bot[Optional hosted responder] --> Node
-    Python[Python x402m client] --> Auth
-    Node --> Auth
-    Auth -->|Verified identity and messaging grant| CF[Cloudflare mailbox dispatcher]
-    CF --> DB[Durable mailbox and nonce database]
-    CF -->|Inbox / reply / acknowledgment| Auth
-    Docs[Canonical docs] --> Bundled[Bundled read-only MCP resources]
-    Bundled --> MCP
-    Spec[SVM batch-settlement specification] --> Channels[Python voucher and channel accounting]
-    PayKit[Supplied Pay Kit Python / Kotlin SDKs] --> Harness[Exact / upto / MPP harnesses]
-    Harness --> Fixture[Loopback resource server and RPC fixtures]
-    Tests[CI and unified verification] --> CF
-    Tests --> Channels
-    Tests --> Harness
-```
-
-Node and Python sign the same Agent Auth request contract: fresh Ed25519 JWTs,
-execution URL and method binding, exact-body SHA-256, capability scope, and a
-60-second lifetime. Both reach `/api/auth/capability/execute` and use
-`x402m.register`, `send`, `inbox`, `ack`, and `link`.
-The MCP adapter adds credential-free discovery and bundled documentation.
-
-The [cross-language roundtrip](integration/test_mailbox.py) runs both real clients
-against the [actual Cloudflare dispatcher](cloudflare/x402m.mjs), with a local
-SQLite adapter and synthetic approved identities. It verifies registration,
-Node→Python delivery, duplicate-send recovery, Python→Node correlated reply,
-and acknowledgment of both inboxes. Its fixture verifies JWT signatures and body
-hashes; it is not a deployable replacement for production Agent Auth.
-
-Payment composition follows separate contracts. Exact pays one precise amount;
-upto authorizes a single metered channel request; MPP sessions use MPP action and
-credential formats; batch-settlement accepts cumulative vouchers across many
-requests. x402m messages may carry proposals or receipt references. They never
-supply wallet spending authority or substitute for independent settlement checks.
 
 ## Workspace map
 
