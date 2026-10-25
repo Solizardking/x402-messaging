@@ -27,6 +27,7 @@
     "test:onchain": "node --test solana/*.test.mjs",
     "start:hosted": "npm run start:hosted --workspace @musebook/x402m-bot",
     "test:workspace": "node --test integration/workspace.test.mjs",
+    "test:onboarding": "node --test onboarding/*.test.mjs",
     "verify": "node scripts/verify.mjs",
     "verify:all": "node scripts/verify.mjs --kotlin"
   },

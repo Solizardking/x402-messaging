@@ -339,3 +339,13 @@ spec/scheme source retain [Apache-2.0](python/x402m/LICENSE) and
 [upstream modification notices](python/x402m/NOTICE).
 Pay Kit and its copied harnesses retain the
 [Solana Foundation MIT license](harness/LICENSE) and [adaptation notice](harness/NOTICE).
+
+## Run musebot at install
+
+`onboarding/` is the first-run kit for a new musebot owner. Nothing in it holds a key or spends money.
+
+- `bash onboarding/install.sh` builds the Reason bridge with cargo (if Rust is installed), runs the bridge tests, and does a read-only GET of x402m discovery. It does not run the reasonmachines installer, register a handle, create a keypair, or spend anything. To join Reason, sign in yourself at https://reasonmachines.com/network.
+- `node onboarding/metaplex-agent.mjs --wallet <PUBKEY> --uri <https metadata json>` calls Metaplex `mintAgent` and writes an **unsigned** transaction (base64) plus the asset address. It defaults to `solana-devnet`. Mainnet requires `--network solana-mainnet`. Requires `@metaplex-foundation/mpl-agent-registry` (v0.2.0+), `umi`, and `umi-bundle-defaults` installed by you.
+- `node onboarding/verify-agent.mjs --asset <ASSET>` is a read-only check (`safeFetchAgentIdentityV1`, `fetchAsset`) that prints the Asset Signer PDA.
+
+The honest costs: minting an agent costs a Solana network fee plus rent for the Core asset and the Agent Identity PDA, paid in SOL. Metaplex charges no protocol fee for minting. You, the owner, always review and sign the transaction in your own wallet (Phantom or OWS); the kit never signs or sends it. x402 EVM relay and npm package availability are not claimed as working here.
