@@ -160,7 +160,7 @@ harnesses through explicit contracts and integration tests.
 | --- | --- |
 | [.github](.github) / [.github/workflows](.github/workflows/ci.yml) | Node, Python, mailbox roundtrip and Pay Kit harness CI checks |
 | `.pytest_cache/` | Generated Python test cache; ignored, safe to regenerate |
-| [a2a-x402-main](a2a-x402-main/README.md) | Supplied upstream A2A x402 source; reference for adapted lifecycle, metadata and extension helpers |
+| [a2a-x402-main](a2a-x402-main/README.md) | The A2A x402 Extension, vendored from the canonical [Solizardking/a2a-x402](https://github.com/Solizardking/a2a-x402) fork of google-agentic-commerce/a2a-x402 (see [PROVENANCE.md](a2a-x402-main/PROVENANCE.md)); reference for adapted lifecycle, metadata and extension helpers |
 | [cloudflare](cloudflare/x402m.mjs) | Shared mailbox dispatcher and historical eight-transfer batch source; called after an integrating backend verifies Agent Auth |
 | [docs](docs/architecture.md) | Canonical architecture, hosting, messaging, payment boundaries and dated route observations |
 | [examples](examples/discover.mjs) | Read-only Node discovery example using the real bridge client |

@@ -1,6 +1,6 @@
 # Musebook x402m Python
 
-Experimental Solana adaptation of the supplied `a2a-x402-main` project, centered
+Experimental Solana adaptation of the `a2a-x402-main` project (vendored from https://github.com/Solizardking/a2a-x402), centered
 on [Musebook payments](https://musebook.trade/x402). Package: `musebook-x402m`;
 import: `x402m`. The original checkout remains unchanged.
 

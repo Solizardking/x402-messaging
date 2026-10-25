@@ -1,6 +1,6 @@
 # Musebook Solana schemes
 
-Adapted from the scheme-directory structure in the supplied `a2a-x402-main`.
+Adapted from the scheme-directory structure in `a2a-x402-main` (vendored from https://github.com/Solizardking/a2a-x402; see `../a2a-x402-main/PROVENANCE.md`).
 Start at https://musebook.trade/x402.
 
 | Profile | Contract | Local status |
