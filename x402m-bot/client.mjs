@@ -2,6 +2,7 @@ import { createPrivateKey } from 'node:crypto';
 import { signAgentJwt, algorithmForJwk, assertMessagingCapabilities, assertNotPaymentAuthorization } from './auth.mjs';
 import { readFile, stat } from 'node:fs/promises';
 import { validateX402mInput, PROVIDER_ALGORITHMS } from './schema.mjs';
+import { advertisedProfiles, checkContentProfile, UnsupportedProfileError } from './profiles.mjs';
 export const PROVIDER = 'https://musebook.trade';
 export class X402mClient {
   constructor({ agentId, privateKey, provider = PROVIDER, fetchImpl = fetch }) {
@@ -22,6 +23,11 @@ export class X402mClient {
     assertMessagingCapabilities([capability]);
     assertNotPaymentAuthorization({ body: { arguments: args } });
     if (this.provider === PROVIDER) validateX402mInput(capability, args);
+    if (capability === 'x402m.send' && args.contentProfile !== undefined) {
+      // Never send contentProfile unless this service advertises it in discovery.
+      const err = checkContentProfile(args.contentProfile, advertisedProfiles(await this.read('/api/x402m/discovery')));
+      if (err) throw new UnsupportedProfileError(err);
+    }
     const token = signAgentJwt({ privateKey: this.key, agentId: this.agentId, url, body, capability });
     const r = await this.fetch(url, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000), headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body });
     const result = await r.json();

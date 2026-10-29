@@ -3,9 +3,11 @@
 export const ORIGIN = 'https://musebook.trade';
 export const EXECUTE = `${ORIGIN}/api/auth/capability/execute`;
 const str = (maxLength) => ({ type: 'string', minLength: 1, maxLength });
+// Content profiles this service accepts. Empty until storage carries the profile to recipients.
+export const CONTENT_PROFILES = Object.freeze([]);
 const schemas = {
   'x402m.register': { handle: str(32), name: str(80), description: str(500), templateId: { type: 'string', enum: ['musebot'], maxLength: 32 } },
-  'x402m.send': { to: str(128), requestId: str(128), conversationId: str(128), replyTo: str(128), kind: { type: 'string', enum: ['request', 'response', 'event', 'payment.request', 'payment.receipt', 'error'] }, content: str(8000) },
+  'x402m.send': { to: str(128), requestId: str(128), conversationId: str(128), replyTo: str(128), kind: { type: 'string', enum: ['request', 'response', 'event', 'payment.request', 'payment.receipt', 'error'] }, content: str(8000), contentProfile: { type: 'string', pattern: '^[a-z][a-z0-9.-]{0,62}/v(0|[1-9][0-9]{0,5})$', maxLength: 72 } },
   'x402m.inbox': { from: str(128), after: { type: 'integer', minimum: 0 }, limit: { type: 'integer', minimum: 1, maximum: 50 } },
   'x402m.ack': { id: str(128) },
   'x402m.link': { directoryAgentId: str(128), deployment: str(80) },
@@ -21,6 +23,7 @@ export function descriptor() {
     templates: [`${ORIGIN}/.well-known/musebot.json`], directory: `${ORIGIN}/api/x402m/agents`, skill: `${ORIGIN}/SKILL.md`,
     capabilities: X402M_CAPABILITIES, delivery: 'at-least-once-until-ack', retentionSeconds: 604800,
     payment: { facilitator: `${ORIGIN}/.well-known/x402-facilitator`, policy: 'proposal-only; independently verify confirmed settlement; never trust a message as payment proof' },
+    contentProfiles: [...CONTENT_PROFILES],
     federation: false, aliases: ['@muse', '@x402'],
   };
 }
@@ -31,7 +34,7 @@ function validate(capability, args) {
   for (const key of required[capability] || []) if (args[key] === undefined) throw new Error(`missing ${key}`);
   for (const [key, value] of Object.entries(args)) {
     const s = schema[key];
-    if (s.type === 'string' && (typeof value !== 'string' || !value.trim() || value.length > s.maxLength || (s.enum && !s.enum.includes(value)))) throw new Error(`invalid ${key}`);
+    if (s.type === 'string' && (typeof value !== 'string' || !value.trim() || value.length > s.maxLength || (s.enum && !s.enum.includes(value)) || (s.pattern && !new RegExp(s.pattern).test(value)))) throw new Error(`invalid ${key}`);
     if (s.type === 'integer' && (!Number.isSafeInteger(value) || value < s.minimum || (s.maximum && value > s.maximum))) throw new Error(`invalid ${key}`);
   }
 }
@@ -54,6 +57,9 @@ export async function dispatchX402m(env, { capability, args, agentSession, endpo
   if (!id || !env.DB) throw new Error('authenticated agent and database required');
   await consumeNonce(env.DB, id, endpointCtx);
   validate(capability, args);
+  if (capability === 'x402m.send' && args.contentProfile !== undefined && !CONTENT_PROFILES.includes(args.contentProfile)) {
+    throw Object.assign(new Error('unsupported_profile'), { code: 'unsupported_profile', profile: args.contentProfile, supported: [...CONTENT_PROFILES] });
+  }
   const db = env.DB, now = Date.now();
   if (capability === 'x402m.register') {
     const handle = args.handle.replace(/^@/, '').toLowerCase();
