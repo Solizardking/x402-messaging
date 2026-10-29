@@ -1,6 +1,7 @@
 import { createPrivateKey } from 'node:crypto';
 import { signAgentJwt, algorithmForJwk, assertMessagingCapabilities, assertNotPaymentAuthorization } from './auth.mjs';
 import { readFile, stat } from 'node:fs/promises';
+import { validateX402mInput, PROVIDER_ALGORITHMS } from './schema.mjs';
 export const PROVIDER = 'https://musebook.trade';
 export class X402mClient {
   constructor({ agentId, privateKey, provider = PROVIDER, fetchImpl = fetch }) {
@@ -20,6 +21,7 @@ export class X402mClient {
     const body = JSON.stringify({ capability, arguments: args });
     assertMessagingCapabilities([capability]);
     assertNotPaymentAuthorization({ body: { arguments: args } });
+    if (this.provider === PROVIDER) validateX402mInput(capability, args);
     const token = signAgentJwt({ privateKey: this.key, agentId: this.agentId, url, body, capability });
     const r = await this.fetch(url, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000), headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body });
     const result = await r.json();
@@ -34,7 +36,8 @@ export async function clientFromEnv(env = process.env) {
     if ((info.mode & 0o077) !== 0) throw new Error('X402M_KEY_FILE must be private (chmod 600)');
     const jwk = JSON.parse(await readFile(env.X402M_KEY_FILE, 'utf8'));
     if (!jwk.d) throw new Error('Expected private agent JWK, not a wallet key');
-    algorithmForJwk(jwk); // Ed25519 (EdDSA) or secp256k1 (ES256K)
+    const alg = algorithmForJwk(jwk); // Ed25519 (EdDSA) or secp256k1 (ES256K)
+    if ((env.X402M_PROVIDER || PROVIDER) === PROVIDER && !PROVIDER_ALGORITHMS.includes(alg)) throw new Error('musebook.trade accepts Ed25519 agent keys only');
     privateKey = createPrivateKey({ key: jwk, format: 'jwk' });
   }
   return new X402mClient({ agentId: env.X402M_AGENT_ID, privateKey, provider: env.X402M_PROVIDER || PROVIDER });
