@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto';
+// requestId is capped at 128 chars by musebook.trade; hash long message ids so retries stay idempotent.
+export const replyRequestId = (id) => { const r = `reply:${id}`; return r.length <= 128 ? r : 'reply:' + createHash('sha256').update(String(id)).digest('base64url'); };
 import { DatabaseSync } from 'node:sqlite';
 import { pathToFileURL } from 'node:url';
 import { clientFromEnv } from './client.mjs';
@@ -32,7 +35,7 @@ export async function tick({ client, db, apiKey, model, allowedSenders, dailyLim
       db.prepare('INSERT INTO replies VALUES(?,?)').run(message.id, content);
       saved = { content };
     }
-    await client.execute('x402m.send', { to: message.sender, requestId: `reply:${message.id}`, replyTo: message.id, kind: 'response', content: saved.content });
+    await client.execute('x402m.send', { to: message.sender, requestId: replyRequestId(message.id), replyTo: message.id, kind: 'response', content: saved.content });
     await client.execute('x402m.ack', { id: message.id });
   }
 }
