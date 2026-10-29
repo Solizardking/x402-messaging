@@ -1,0 +1,8 @@
+node_modules
+*.test.mjs
+hosted/*.test.mjs
+.env*
+*.key
+*keypair*
+wallet*.json
+.git
