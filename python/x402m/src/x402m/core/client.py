@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 
 import httpx
 from .auth import private_key_from_jwk, sign_agent_jwt, assert_messaging_capabilities, assert_not_payment_authorization
+from .profiles import advertised_profiles, check_content_profile, UnsupportedProfileError
 from ..types.config import PROVIDER, CAPABILITIES
 
 
@@ -62,6 +63,11 @@ class X402mClient:
         body = compact({"capability": capability, "arguments": {} if arguments is None else arguments})
         assert_messaging_capabilities([capability])
         assert_not_payment_authorization({"body": {"arguments": arguments or {}}})
+        if capability == "x402m.send" and (arguments or {}).get("contentProfile") is not None:
+            # Never send contentProfile unless this service advertises it in discovery.
+            err = check_content_profile(arguments["contentProfile"], advertised_profiles(await self.read("/api/x402m/discovery")))
+            if err:
+                raise UnsupportedProfileError(err)
         token = sign_agent_jwt(self.key, self.agent_id, url, body, capability)
         response = await self.http.post(url, content=body, headers={"content-type": "application/json", "authorization": "Bearer " + token})
         response.raise_for_status()

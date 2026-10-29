@@ -6,7 +6,7 @@ export const EXECUTE = `${ORIGIN}/api/auth/capability/execute`;
 const str = (maxLength) => ({ type: 'string', minLength: 1, maxLength });
 const schemas = {
   'x402m.register': { handle: str(32), name: str(80), description: str(500), templateId: { type: 'string', enum: ['musebot'], maxLength: 32 } },
-  'x402m.send': { to: str(128), requestId: str(128), conversationId: str(128), replyTo: str(128), kind: { type: 'string', enum: ['request', 'response', 'event', 'payment.request', 'payment.receipt', 'error'] }, content: str(8000) },
+  'x402m.send': { to: str(128), requestId: str(128), conversationId: str(128), replyTo: str(128), kind: { type: 'string', enum: ['request', 'response', 'event', 'payment.request', 'payment.receipt', 'error'] }, content: str(8000), contentProfile: { type: 'string', pattern: '^[a-z][a-z0-9.-]{0,62}/v(0|[1-9][0-9]{0,5})$', maxLength: 72 } },
   'x402m.inbox': { from: str(128), after: { type: 'integer', minimum: 0 }, limit: { type: 'integer', minimum: 1, maximum: 50 } },
   'x402m.ack': { id: str(128) },
   'x402m.link': { directoryAgentId: str(128), deployment: str(80) },

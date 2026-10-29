@@ -192,6 +192,101 @@
       "allowed": true
     }
   ],
+  "contentProfiles": {
+    "note": "Informative. x402m.offer/v1 is a draft fixture profile; musebook.trade advertises no content profiles.",
+    "format": {
+      "valid": [
+        "x402m.offer/v1",
+        "x402m.text/v0",
+        "acme.invoice-2/v12"
+      ],
+      "invalid": [
+        "x402m.offer",
+        "x402m.offer/1",
+        "x402m.offer/v01",
+        "X402m.offer/v1",
+        "x402m.offer/v1.2",
+        "/v1",
+        "x402m offer/v1"
+      ]
+    },
+    "negotiation": [
+      {
+        "name": "supported",
+        "supported": [
+          "x402m.offer/v1"
+        ],
+        "profile": "x402m.offer/v1",
+        "expect": null
+      },
+      {
+        "name": "unsupported version",
+        "supported": [
+          "x402m.offer/v1"
+        ],
+        "profile": "x402m.offer/v2",
+        "expect": {
+          "code": "unsupported_profile",
+          "profile": "x402m.offer/v2",
+          "supported": [
+            "x402m.offer/v1"
+          ]
+        }
+      },
+      {
+        "name": "service advertises none",
+        "supported": [],
+        "profile": "x402m.offer/v1",
+        "expect": {
+          "code": "unsupported_profile",
+          "profile": "x402m.offer/v1",
+          "supported": []
+        }
+      }
+    ],
+    "offerQuote": [
+      {
+        "name": "valid quote",
+        "quote": {
+          "amount": "1.50",
+          "unit": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "expiresAt": 1790000600
+        },
+        "now": 1790000000,
+        "unit": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "expect": null
+      },
+      {
+        "name": "expired quote",
+        "quote": {
+          "amount": "1.50",
+          "unit": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "expiresAt": 1790000600
+        },
+        "now": 1790000600,
+        "unit": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "expect": {
+          "code": "expired_quote",
+          "expiresAt": 1790000600
+        }
+      },
+      {
+        "name": "unit mismatch",
+        "quote": {
+          "amount": "1.50",
+          "unit": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "expiresAt": 1790000600
+        },
+        "now": 1790000000,
+        "unit": "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "expect": {
+          "code": "unit_mismatch",
+          "expected": "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "received": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+        }
+      }
+    ]
+  },
   "agentJwt": [
     {
       "name": "EdDSA valid",
